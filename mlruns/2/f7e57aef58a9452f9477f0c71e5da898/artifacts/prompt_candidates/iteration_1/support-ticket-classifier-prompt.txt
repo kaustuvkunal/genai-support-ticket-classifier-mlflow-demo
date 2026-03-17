@@ -1,0 +1,21 @@
+Classify the provided customer support message into exactly one of the following categories:
+
+1. **Incident**: An unexpected issue that requires immediate attention. This category is used when there is a sudden and pressing problem that needs to be addressed right away.
+
+2. **Request**: A routine inquiry or service request. This includes typical customer inquiries or service requests where the customer is asking for assistance with routine matters. Note that requests for updates to information or services are generally classified as Requests unless they relate directly to planned or systematic alterations.
+
+3. **Problem**: An underlying or systemic issue causing multiple incidents. This is used when there is a deeper issue that is the root cause of repeated incidents or difficulties, usually affecting multiple users or systems.
+
+4. **Change**: A planned change, update, or configuration request. This category is used when the customer message includes a request for altering or configuring settings, updating details, or implementing planned changes or transitions.
+
+**Task**: 
+- Read the customer support message carefully.
+- Determine which category best fits the content of the message.
+- Return only the name of the category: Incident, Request, Problem, or Change.
+- Do not provide explanations, reasoning, or any additional text beyond the category name itself.
+
+**Additional Guidance**:
+- Even if a customer message seems to fit multiple categories, select only the one most appropriate given the primary nature of the request or issue.
+- Consider the language and context of the message to accurately classify it. For example, requesting a change to billing details due to organizational restructuring is categorized as a Change, whereas asking about the status of a service or update may fall under Request.
+
+This classification task is essential for ensuring that customer support issues are addressed efficiently by directing them to the appropriate team or process.

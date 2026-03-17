@@ -1,124 +1,285 @@
-# genai-ticket-classifier-mlflow-demo
+# GenAI Ticket Classifier
 
-GenAI ticket classifier demo using **MLflow GenAI** 
+An LLM-based support ticket classification system.
+---
 
+## Use Case
 
-## Features
+**Automated Support Ticket Routing:** Classify incoming customer support messages into one of four categories using advanced LLM reasoning:
 
-- Registers a reusable MLflow prompt for ticket classification
-- Runs evaluation against a labeled dataset using `mlflow.genai.evaluate`
-- Optimizes prompts using `mlflow.genai.optimize_prompts`
-- Provides a simple CLI for registration, evaluation, optimization, and prediction
+- **Incident** — Unexpected issues requiring immediate attention (system outage, data loss)
+- **Request** — Routine inquiries and service requests (password reset, feature request)
+- **Problem** — Underlying/systemic issues causing multiple incidents (recurring bug)
+- **Change** — Planned updates, configurations, or version upgrades
 
-## Getting started
+The system leverages the semantic understanding of LLMs to accurately classify tickets.
+---
 
-### 1) Set up a virtual environment (recommended)
+## Key Features
 
-Create and activate a virtual environment to isolate dependencies:
+✅ **Flexible LLM Providers** — Switch between Groq or OpenAI at runtime   
+✅ **MLflow Demo** — Register prompts, run evaluations, optimize prompts  leveraging MlFlow 
+✅ **CLI Tools** — Command-line interface for batch predictions and prompt management  
+✅ **Environment-based Config** — All settings via `.env` file for easy deployment  
+✅ **No Backend Required** — Works standalone—no database or external server needed  
+
+---
+
+## Quick Start
+
+### 1. Clone & Setup
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+git clone https://github.com/kaustuvkunal/genai-support-ticket-classifier-mlflow-demo.git
+cd genai-support-ticket-classifier-mlflow-demo
+python3 -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 ```
 
-### 2) Install dependencies
+### 2. Install Dependencies
 
 ```bash
-python -m pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
-### 3) Configure credentials
+### 3. Configure API Keys
 
-Copy the `.env.example` file and configure your API keys:
+Copy `.env.example` to `.env`:
 
 ```bash
 cp .env.example .env
 ```
 
-Edit `.env` and set `GROQ_API_KEY` (required). Optionally adjust MLflow settings.
+Edit `.env` and add your LLM provider key:
 
-### 4) Start an MLflow tracking server (local)
-
-```bash
-mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 127.0.0.1 --port 5000
+```env
+LLM_PROVIDER=groq
+MODEL_NAME=llama-3.1-8b-instant
+GROQ_API_KEY=your_groq_api_key_here
 ```
 
-### 5) Run the demo CLI
-
-Register the prompt:
-
-```bash
-ticket-classifier register-prompt
+Or use OpenAI:
+```env
+LLM_PROVIDER=openai
+MODEL_NAME=gpt-4o
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-Run a baseline evaluation:
+---
+
+## Advanced: MLflow CLI Workflow (Optional)
+
+For full ML capabilities (prompt registration, evaluation, optimization):
+
+### 1. Start MLflow Server
 
 ```bash
-ticket-classifier evaluate
+mlflow server --backend-store-uri sqlite:///mlflow.db \
+  --default-artifact-root ./mlruns \
+  --host 127.0.0.1 --port 5000
 ```
 
-Optimize the prompt:
+
+### 2. Register a Prompt
 
 ```bash
-ticket-classifier optimize
+python -m src.cli register-prompt
 ```
 
-Predict a single message:
+
+### 3. Run Evaluation
 
 ```bash
-ticket-classifier predict "My service is down and I need help"
+python3 -m src.cli evaluate
 ```
 
-## 6) Run unit tests
+Uses latest registered prompt (default)
+`python3 -m src.cli evaluate`
+
+Evaluate against a specific registered prompt version
+`python3 -m src.cli evaluate --prompt-uri prompts:/support-ticket-classifier-prompt/1`
+
+
+### 4. Make a Prediction (via CLI)
+
+Use the inline prompt from `src/prompt.py` (default — no MLflow server required):
+```bash
+python3 -m src.cli predict "My service is down"
+```
+
+Use a specific registered prompt version from the MLflow registry:
+```bash
+python3 -m src.cli predict "My service is down" --prompt-uri prompts:/support-ticket-classifier-prompt/1
+```
+
+
+
+### 5. Optimize Prompt
+
+Optimize the latest registered prompt (default):
+```bash
+python3 -m src.cli optimize
+```
+
+Optimize a specific version by number:
+```bash
+python3 -m src.cli optimize --prompt-version 1
+```
+
+Optimize using an explicit prompt URI:
+```bash
+python3 -m src.cli optimize --prompt-uri prompts:/support-ticket-classifier-prompt/1
+```
+
+Limit scorer calls for faster runs during development:
+```bash
+python3 -m src.cli optimize --max-metric-calls 50
+```
+---
+
+## Run Gradio App Locally
+
+### Option A: Simple Interactive UI
+
+```bash
+python3 app.py
+```
+
+Open `http://localhost:7860` in your browser.
+
+The app provides:
+- **Interactive classification** — Enter a message and run classification from the UI
+- **Provider selection** — Switch between Groq and OpenAI at runtime
+- **API key input** — Optionally paste API key (uses .env if empty)
+- **Manual submission** — Use the Classify button to run predictions
+
+---
+
+## Deployment to Hugging Face Spaces
+
+### Setup
+
+1. Create a new Space on [Hugging Face](https://huggingface.co/spaces) with **Gradio** runtime
+2. Push this repository to the Space
+
+### Configure Secrets
+
+In **Space Settings** → **Secrets**, add your API keys:
+
+```
+LLM_PROVIDER=groq
+MODEL_NAME=llama-3.1-8b-instant
+GROQ_API_KEY=your_groq_key
+# Optional: Add auth
+USERNAME=your_username
+PASSWD=your_password
+```
+
+The Space automatically runs `python app.py` on startup.
+
+---
+
+## Supported LLM Providers
+
+| Provider | Model Example | Setup |
+|----------|---------------|-------|
+| **Groq** | `llama-3.1-8b-instant` | `GROQ_API_KEY=...` |
+| **OpenAI** | `gpt-3.5-turbo` | `OPENAI_API_KEY=...` |
+
+Switch providers at runtime via the UI dropdown.
+
+---
+
+## Project Structure
+
+```
+.
+├── app.py                    # Standalone Gradio app (deploy this!)
+├── src/
+│   ├── __init__.py
+│   ├── cli.py               # MLflow CLI commands
+│   ├── config.py            # Configuration loading
+│   ├── predict.py           # Prediction logic
+│   ├── prompt.py            # Prompt templates
+│   └── ...                  # Other utilities
+├── tests/                   # Unit tests
+├── dataset/                 # Sample data for evaluation
+├── requirements.txt         # Python dependencies
+├── .env.example            # Configuration template
+└── README.md              # This file
+```
+
+---
+
+## Configuration Reference
+
+### Environment Variables
+
+**Gradio App Settings:**
+- `LLM_PROVIDER` — Which provider to use (default: `groq`)
+- `MODEL_NAME` — Model name (overrides defaults)
+- API keys — `GROQ_API_KEY`, `OPENAI_API_KEY`
+
+**Authentication:**
+- `USERNAME` — Username for UI auth (optional)
+- `PASSWD` — Password for UI auth (optional)
+
+**MLflow (CLI only):**
+- `MLFLOW_TRACKING_URI` — MLflow server (e.g., `http://127.0.0.1:5000`)
+- `MLFLOW_EXPERIMENT` — Experiment name
+- `PROMPT_NAME` — Prompt registry name
+
+---
+
+## Testing
+
+Run unit tests:
 
 ```bash
 pytest
 ```
 
-## Deploy to Hugging Face Spaces (with login)
+Sample test messages in the app:
+- "My laptop won't connect to Wi-Fi after the update." → Incident
+- "I would like to request a new employee badge." → Request
+- "The server keeps crashing every night at 2 AM." → Problem
+- "Can we add SAML SSO support to the app?" → Change
 
-This project includes a Gradio app (`app.py`) designed for deployment to a Hugging Face Space.
+---
 
-### 5a) Prepare the Space
+## Troubleshooting
 
-1. Create a new Space on Hugging Face and choose **Gradio** as the runtime.
-2. Push this repo to the Space (or connect it via Git).
+**"GROQ_API_KEY not set"**
+- Ensure `.env` file exists with your API key
+- Run `cp .env.example .env` and add your key
 
-### 5b) Configure secrets (login)
+**"Module not found" errors**
+- Install missing packages: `pip install -r requirements.txt`
+- For specific providers: `pip install openai groq`
 
-In the Space settings, add the following secrets (under **Secrets**):
+**Port 7860 already in use (local)**
+- Change port: `python app.py --server_port 7861`
+- Or kill existing process: `lsof -i :7860`
 
-- `GROQ_API_KEY` — your Groq API key
-- `MLFLOW_TRACKING_URI` — e.g., `http://127.0.0.1:5000` (if using a remote server)
-- `HF_APP_USERNAME` — the username required to access the app
-- `HF_APP_PASSWORD` — the password required to access the app
+---
 
-> If `HF_APP_USERNAME` and/or `HF_APP_PASSWORD` are unset, the app will run without login.
+## License
 
-### 5c) Launch
+MIT License — See [LICENSE](LICENSE) file
 
-The Space automatically runs `python app.py` on startup. Once the build completes, visit the Space URL and log in using the username/password configured above.
+---
 
-### 5d) Local development
+## Contributing
 
-You can also run the app locally:
+Contributions welcome! Please:
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
 
-```bash
-python app.py
-```
+---
 
-If you want to require auth locally as well, set the same environment variables:
-
-```bash
-export HF_APP_USERNAME=myuser
-export HF_APP_PASSWORD=mypassword
-python app.py
-```
-
-## Project layout
-
-- `src/genai_ticket_classifier/` – core library code
-- `notebooks/` – exploratory notebook (legacy)
-- `.env.example` – environment variable template
-- `requirements.txt` – pinned runtime dependencies
-- `pyproject.toml` – project metadata and CLI entry point
+**Built with:**
+- [Groq API](https://groq.com/) — Ultra-fast LLM inference
+- [OpenAI API](https://openai.com/) — GPT models
+- [Gradio](https://gradio.app/) — Web UI framework
+- [MLflow](https://mlflow.org/) — ML workflow management

@@ -1,0 +1,17 @@
+Classify the provided customer support message into **exactly one** of the following categorized themes, strictly adhering to the definitions provided:
+
+- Incident  : refers to an unexpected issue that requires immediate attention and resolution. This is typically a single event leading to disruption or service degradation.
+- Request   : pertains to routine inquiries or service requests that involve asking for information, assistance, or provision of services.
+- Problem   : involves an underlying or systemic issue that is causing multiple incidents or disruptions. It generally requires a more thorough investigation or analysis to resolve.
+- Change    : encompasses planned changes, updates, or configuration requests. It involves intentional modifications to services or configurations as per the customer's needs.
+
+When processing the customer support message, return **only** the category name: Incident, Request, Problem, or Change. Ensure no explanation, contextual information, or additional text accompanies your response. Strictly adhere to using the defined allowed answers and format to maintain clarity and consistency.
+
+In ambiguous cases, rely on keywords or contextual clues in the message that align closely with the defined categories to determine the classification. Always favor the interpretation that best fits the given definitions.
+
+Example Classification:
+
+1. Customer message asking for payment options should be classified under "Request" as it is a routine inquiry.
+2. A message seeking an update to billing information, such as changing credit card details, fits under "Change" as it involves a planned update request.
+3. Reports of billing issues caused by configuration changes that persist despite attempts to resolve will qualify as "Problem," suggesting a deeper root cause.
+4. For immediate concerns such as a transaction failure requiring urgent attention, classify as "Incident."

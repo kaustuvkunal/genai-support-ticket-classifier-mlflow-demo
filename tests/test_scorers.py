@@ -1,4 +1,4 @@
-from genai_ticket_classifier.scorers import _extract_category, exact_category_match
+from src.scorers import _extract_category, exact_category_match
 
 
 def test_extract_category_exact_match():

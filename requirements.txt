@@ -1,12 +1,19 @@
 # Core dependencies
-mlflow>=2.6.0
-groq>=0.2.0
+python-dotenv>=1.0
+gradio>=4.0
+
+# Optional: MLflow (for CLI with prompt registration/evaluation)
+mlflow==3.10.0
+
+# LLM Providers
+groq>=0.4.0              # For Groq API
+openai>=1.0             # For OpenAI API
+
+# Optional: Data processing (for MLflow evaluation)
 pandas>=2.0
 datasets>=2.0
 scikit-learn>=1.2
-python-dotenv>=1.0
 click>=8.0
-gradio>=3.0
 
-# Dev / testing
+# Development & testing
 pytest>=8.0

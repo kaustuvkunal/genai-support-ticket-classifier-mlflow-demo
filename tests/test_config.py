@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from genai_ticket_classifier.config import Config, load_config
+from src.config import Config, load_config
 
 
 def test_load_config_missing_api_key(tmp_path, monkeypatch):
@@ -25,6 +25,8 @@ def test_load_config_from_env(monkeypatch):
     cfg = load_config()
 
     assert isinstance(cfg, Config)
-    assert cfg.groq_api_key == "test-key"
+    # API keys are NOT stored on Config to prevent leakage — verify that
+    # the key is readable from the environment instead.
+    assert os.environ.get("GROQ_API_KEY") == "test-key"
     assert cfg.mlflow_tracking_uri == "http://localhost:5000"
     assert cfg.model_name == "llama-3.1-8b-instant"

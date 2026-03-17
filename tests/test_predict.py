@@ -1,14 +1,14 @@
 import importlib
 import pytest
 
-predict_module = importlib.import_module("genai_ticket_classifier.predict")
-from genai_ticket_classifier.predict import predict_from_inputs
+predict_module = importlib.import_module("src.predict")
+from src.predict import predict_from_inputs
 
 
 def test_predict_from_inputs_calls_predict(monkeypatch):
     called = {"args": None}
 
-    def fake_predict(config, customer_message: str) -> str:
+    def fake_predict(config, customer_message: str, prompt_uri=None) -> str:
         called["args"] = (config, customer_message)
         return "incident"
 

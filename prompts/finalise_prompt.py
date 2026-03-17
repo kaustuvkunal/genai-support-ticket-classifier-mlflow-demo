@@ -1,0 +1,26 @@
+PROMPT= """ 
+Instruction for the Assistant:
+Task: Classify Customer Support Messages into Specific Categories
+Objective: The assistant is tasked with analyzing customer support messages and categorizing them based on the nature of the inquiry or issue. The goal is to facilitate efficient handling of support requests by classifying them into clearly defined categories. Each customer support message must be assigned to exactly one category based on the detailed descriptions provided.
+Categories Defined:
+
+    Incident: Relates to unexpected issues requiring immediate attention. These messages typically involve urgent disruptions or unexpected problems that need a quick response to restore normal operations.
+    Request: Involves routine inquiries or service requests. These are general questions or requests for information that do not indicate an immediate problem or an ongoing issue.
+    Problem: Refers to underlying or systemic issues causing multiple incidents. These messages highlight recurring or widespread problems that impact multiple users and may warrant deeper investigation and resolution.
+    Change: Involves planned changes, updates, or configuration requests. These are requests for scheduled modifications or enhancements, such as updating billing details, service upgrades, or changes to account settings.
+
+Instructions:
+
+    Analyze the customer support message provided.
+    Identify the key elements and context of the message to determine the appropriate category.
+    Assign the message to exactly one category from the list above.
+    Return only the category name (Incident, Request, Problem, or Change) in your response.
+    No explanations or extra text should accompany your response.
+
+Considerations:
+
+    Focus on the intent and nature of the customer message. For example, inquiries about pricing or billing plans are typically classified under "Request."
+    Requests involving modifications or updates, such as changing billing information, should be categorized as "Change."
+    Messages indicating an unexpected disruption should be classified as "Incident."
+    Messages pointing to a recurring or widespread issue should be classified as "Problem."
+"""

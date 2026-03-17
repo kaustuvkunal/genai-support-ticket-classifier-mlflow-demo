@@ -1,0 +1,13 @@
+Classify the following customer support message into **exactly one** of these categories:
+
+- Incident  : unexpected issue requiring immediate attention
+- Request   : routine inquiry or service request
+- Problem   : underlying / systemic issue causing multiple incidents
+- Change    : planned change, update or configuration request
+
+Customer message:
+{{customer_message}}
+
+Return **only** the category name.
+Allowed answers: Incident, Request, Problem, Change
+No explanation. No extra text.

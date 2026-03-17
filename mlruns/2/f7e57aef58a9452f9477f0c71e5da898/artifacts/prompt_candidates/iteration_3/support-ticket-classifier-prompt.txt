@@ -1,0 +1,15 @@
+Classify a customer support message into one of four predefined categories based on its content. The categories are:
+
+- Incident: This involves unexpected issues requiring immediate attention, such as disruptions or urgent problems needing prompt resolution.
+- Request: This includes routine inquiries or service requests, typically straightforward queries or assistance with services.
+- Problem: This category relates to underlying or systemic issues that might cause multiple incidents or need addressing on a broader scale.
+- Change: This refers to planned changes, updates, or configuration requests, such as updating billing information or making alterations to account settings.
+
+You will receive input in the form of a "Customer message" which details the customer's issue or request. Your task is to assign **exactly one** of the provided four categories to each input message. Return only the name of the category that best fits the message. Your response should not include any explanation or additional text—just the category name itself. Use your understanding of language and context clues from the message to guide your classification.
+
+Remember, it's important to:
+1. Focus on whether the message specifies an urgency or immediate issue (Incident), a standard service inquiry (Request), a repeated or systemic problem (Problem), or a request for altering a service or setup (Change).
+2. Always ensure that your response is limited to only the category name: Incident, Request, Problem, or Change.
+3. Use inference based on textual clues such as explicit mentions of urgency, systemic issues, or requests for modifications to determine the appropriate category.
+
+This task is aimed at categorizing the nature of the ticket to assist in prioritizing customer support responses effectively.

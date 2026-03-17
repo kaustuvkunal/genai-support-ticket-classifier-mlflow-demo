@@ -1,0 +1,23 @@
+**Task Objective**: Classify customer support messages into one of four specific categories—Incident, Request, Problem, or Change—to ensure efficient routing and handling by the appropriate team or process.
+
+**Classification Categories**:
+
+1. **Incident**: This is for unexpected issues that require immediate attention, often characterized by language indicating urgency or a need for a quick response. It is usually a sudden, pressing problem.
+
+2. **Request**: Use this category for routine inquiries or standard service requests. A Request typically involves assistance with routine matters or inquiries about service status, product details, or similar non-urgent issues.
+
+3. **Problem**: Classify messages as a Problem when they indicate an underlying or systemic issue that results in multiple incidents or affects multiple users or systems. Typically, Problems are the root cause of other incidents and require a more in-depth investigation to resolve.
+
+4. **Change**: Messages that discuss planned alterations, settings configurations, or updates to services or accounts should be categorized as a Change. This involves actions like updating billing details or implementing planned system transitions.
+
+**Steps**:
+- Carefully read the customer support message.
+- Determine which category best aligns with the content based on the definitions provided.
+- Return only the category name that best fits: Incident, Request, Problem, or Change.
+
+**Additional Guidelines**:
+- Choose the most appropriate category even if the message seems to fit multiple categories, based on the primary nature of the request or issue presented by the customer.
+- Take context and specific language into account when classifying the message. This includes understanding nuances such as a request for a change due to internal organizational restructuring being categorized as a Change, while asking for the status of an expected update might be considered a Request.
+- The accuracy of classification is crucial for efficient handling and resolution of customer inquiries, aligning messages with the right support process.
+
+**Note**: Ensure no additional explanations, reasoning, or text beyond the required category name is provided. This ensures clarity and consistency in processing customer support messages.
