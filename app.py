@@ -31,36 +31,91 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger.debug("Initializing Gradio app")
 
+
+def _load_environment() -> Path | None:
+    """Load environment variables from the first available env file."""
+    env_candidates = []
+    for env_name in (".env", ".env.example"):
+        env_candidates.append(Path.cwd() / env_name)
+        env_candidates.append(Path(__file__).parent / env_name)
+
+    seen_paths: set[Path] = set()
+    for env_path in env_candidates:
+        resolved_path = env_path.resolve()
+        if resolved_path in seen_paths:
+            continue
+        seen_paths.add(resolved_path)
+
+        if env_path.exists():
+            load_dotenv(env_path, override=False)
+            return env_path
+
+    return None
+
+
+def _split_csv_env(value: str | None) -> list[str]:
+    """Split a comma-separated env var into a cleaned list."""
+    if not value:
+        return []
+    return [item.strip().lower() for item in value.split(",") if item.strip()]
+
+
+def _provider_display_name(provider: str) -> str:
+    """Return the display name for a provider from env configuration."""
+    return os.getenv(
+        f"{provider.upper()}_DISPLAY_NAME",
+        provider.replace("_", " ").title(),
+    )
+
+
+_LOADED_ENV_PATH = _load_environment()
+
 # Load prompt from prompts/finalise_prompt.py — maintained by the user.
 _FINALISE_PROMPT_PATH = Path(__file__).parent / "prompts" / "finalise_prompt.py"
 PROMPT_TEMPLATE: str = runpy.run_path(str(_FINALISE_PROMPT_PATH))["PROMPT"]
 
-# Supported LLM providers
-SUPPORTED_PROVIDERS = {
-    "groq": "Groq (llama-3.1-8b-instant)",
-    "openai": "OpenAI (gpt-3.5-turbo)",
+SUPPORTED_PROVIDER_KEYS = _split_csv_env(os.getenv("SUPPORTED_PROVIDERS"))
+DEFAULT_PROVIDER = (os.getenv("LLM_PROVIDER") or "").strip().lower()
+
+if DEFAULT_PROVIDER and DEFAULT_PROVIDER not in SUPPORTED_PROVIDER_KEYS:
+    SUPPORTED_PROVIDER_KEYS.append(DEFAULT_PROVIDER)
+
+if not DEFAULT_PROVIDER and SUPPORTED_PROVIDER_KEYS:
+    DEFAULT_PROVIDER = SUPPORTED_PROVIDER_KEYS[0]
+
+DEFAULT_MODELS = {
+    provider: (
+        os.getenv(f"{provider.upper()}_MODEL_NAME")
+        or (os.getenv("MODEL_NAME") if provider == DEFAULT_PROVIDER else None)
+        or ""
+    )
+    for provider in SUPPORTED_PROVIDER_KEYS
 }
 
-DEFAULT_PROVIDER = "groq"
-DEFAULT_MODELS = {
-    "groq": "llama-3.1-8b-instant",
-    "openai": "gpt-3.5-turbo",
+SUPPORTED_PROVIDERS = {
+    provider: (
+        f"{_provider_display_name(provider)} ({DEFAULT_MODELS[provider]})"
+        if DEFAULT_MODELS[provider]
+        else _provider_display_name(provider)
+    )
+    for provider in SUPPORTED_PROVIDER_KEYS
+}
+
+PROVIDER_LABEL_TO_KEY = {
+    label: provider for provider, label in SUPPORTED_PROVIDERS.items()
 }
 
 
 def load_config() -> dict:
     """Load configuration from environment variables."""
     logger.debug("Loading configuration")
-    
-    # Load from .env file if it exists
-    env_path = Path.cwd() / ".env"
-    if env_path.exists():
-        logger.debug(f"Loading environment from: {env_path}")
-        load_dotenv(env_path)
+
+    if _LOADED_ENV_PATH is not None:
+        logger.debug("Loaded environment from: %s", _LOADED_ENV_PATH)
     else:
         logger.debug("No .env file found, using environment variables")
 
-    provider = os.getenv("LLM_PROVIDER", DEFAULT_PROVIDER)
+    provider = (os.getenv("LLM_PROVIDER") or DEFAULT_PROVIDER or "").strip().lower()
     model = os.getenv("MODEL_NAME")
 
     # API keys are intentionally NOT stored in the config dict to prevent
@@ -73,10 +128,18 @@ def load_config() -> dict:
 
     # Set default model if not specified
     if not config["model_name"]:
-        config["model_name"] = DEFAULT_MODELS.get(config["provider"])
+        config["model_name"] = DEFAULT_MODELS.get(config["provider"], "")
 
-    logger.info(f"Configuration loaded - Provider: {config['provider']}, Model: {config['model_name']}")
-    logger.debug(f"Groq API key present: {bool(os.getenv('GROQ_API_KEY'))}, OpenAI API key present: {bool(os.getenv('OPENAI_API_KEY'))}")
+    logger.info(
+        "Configuration loaded - Provider: %s, Model: %s",
+        config["provider"],
+        config["model_name"],
+    )
+    logger.debug(
+        "Groq API key present: %s, OpenAI API key present: %s",
+        bool(os.getenv("GROQ_API_KEY")),
+        bool(os.getenv("OPENAI_API_KEY")),
+    )
     return config
 
 
@@ -222,26 +285,14 @@ def create_app(config: Optional[dict] = None) -> gr.Blocks:
     """
     logger.info("Creating Gradio application")
     config = config or load_config()
-    logger.debug(f"App config: provider={config['provider']}, model={config['model_name']}")
+    logger.debug("App config: provider=%s, model=%s", config["provider"], config["model_name"])
 
-    def classify(customer_message: str, selected_provider: str, api_key: str) -> str:
-        """Wrapper for predict function with runtime provider/key selection."""
-        logger.debug(f"Classify called with selected_provider={selected_provider}")
-        
+    def classify(customer_message: str) -> str:
+        """Classify using the environment-backed app configuration."""
         if not customer_message.strip():
             return ""
 
-        # Update config with runtime selections
-        runtime_config = config.copy()
-        runtime_config["provider"] = selected_provider
-
-        # Pass the user-provided key as an override (falls back to os.environ
-        # inside predict_with_groq / predict_with_openai when not supplied).
-        key_override = api_key.strip() or None
-        if key_override:
-            logger.debug(f"Using provided API key for {selected_provider}")
-
-        return predict(runtime_config, customer_message, api_key_override=key_override)
+        return predict(config, customer_message)
 
     logger.debug("Building Gradio interface")
     with gr.Blocks(
@@ -249,66 +300,32 @@ def create_app(config: Optional[dict] = None) -> gr.Blocks:
         css="body { font-family: system-ui; }"
     ) as demo:
         gr.Markdown("""
-        # 🎫 Ticket Classifier
-        Classifies customer messages into one of:  
+        # 🎫 GenAI Support Ticket Classifier
+        ### Classifies customer messages into one of classes based on the message content and intent
         **Incident** • **Request** • **Problem** • **Change**
         """)
 
-        with gr.Row():
-            with gr.Column(scale=1):
-                gr.Markdown("### Configuration")
-                provider_dropdown = gr.Dropdown(
-                    choices=list(SUPPORTED_PROVIDERS.values()),
-                    value=SUPPORTED_PROVIDERS.get(config["provider"], list(SUPPORTED_PROVIDERS.values())[0]),
-                    label="LLM Provider",
-                    interactive=True
-                )
-                api_key_input = gr.Textbox(
-                    label="API Key (optional - uses .env if empty)",
-                    placeholder="Leave empty to use key from .env file",
-                    type="password",
-                    interactive=True
-                )
-                model_info = gr.Textbox(
-                    label="Model Name",
-                    value=config["model_name"],
-                    interactive=False
-                )
-
-            with gr.Column(scale=2):
-                gr.Markdown("### Classify Message")
-                txt = gr.TextArea(
-                    label="Customer message",
-                    placeholder="Describe the issue or request...",
-                    lines=6
-                )
-                classify_btn = gr.Button("Classify", variant="primary")
-                out = gr.Textbox(
-                    label="Predicted category",
-                    interactive=False
-                )
-
-        # Classification logic
-        def update_model_info(provider_label):
-            """Update model info when provider changes."""
-            provider_key = [k for k, v in SUPPORTED_PROVIDERS.items() if v == provider_label][0]
-            return DEFAULT_MODELS.get(provider_key, "")
-
-        provider_dropdown.change(
-            fn=update_model_info,
-            inputs=provider_dropdown,
-            outputs=model_info
+        gr.Markdown("### Classify Message")
+        txt = gr.TextArea(
+            label="Customer message",
+            placeholder="Describe the issue or request...",
+            lines=6
+        )
+        classify_btn = gr.Button("Classify", variant="primary")
+        out = gr.Textbox(
+            label="Predicted category",
+            interactive=False
         )
 
         txt.change(
-            fn=lambda msg, prov, key: classify(msg, prov.split(" (")[0].lower(), key),
-            inputs=[txt, provider_dropdown, api_key_input],
+            fn=classify,
+            inputs=txt,
             outputs=out
         )
 
         classify_btn.click(
-            fn=lambda msg, prov, key: classify(msg, prov.split(" (")[0].lower(), key),
-            inputs=[txt, provider_dropdown, api_key_input],
+            fn=classify,
+            inputs=txt,
             outputs=out
         )
 

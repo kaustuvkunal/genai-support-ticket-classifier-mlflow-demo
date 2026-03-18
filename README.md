@@ -1,11 +1,11 @@
-# GenAI Ticket Classifier
+# GenAI Support-Ticket Classifier
 
-An LLM-based support ticket classification system.
+An LLM-based support-ticket classification system.
 ---
 
 ## Use Case
 
-**Automated Support Ticket Routing:** Classify incoming customer support messages into one of four categories using advanced LLM reasoning:
+**Automated Support Ticket Routing:** Classify incoming customer support messages into one of four categories using LLM reasoning:
 
 - **Incident** — Unexpected issues requiring immediate attention (system outage, data loss)
 - **Request** — Routine inquiries and service requests (password reset, feature request)
@@ -18,7 +18,7 @@ The system leverages the semantic understanding of LLMs to accurately classify t
 ## Key Features
 
 ✅ **Flexible LLM Providers** — Switch between Groq or OpenAI at runtime   
-✅ **MLflow Demo** — Register prompts, run evaluations, optimize prompts  leveraging MlFlow 
+✅ **MLflow Demo** — Register prompts, run evaluations, optimize prompts leveraging MlFlow
 ✅ **CLI Tools** — Command-line interface for batch predictions and prompt management  
 ✅ **Environment-based Config** — All settings via `.env` file for easy deployment  
 ✅ **No Backend Required** — Works standalone—no database or external server needed  
@@ -67,18 +67,18 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 ---
 
-## Advanced: MLflow CLI Workflow (Optional)
+##  MLflow Demo CLI Workflow
 
-For full ML capabilities (prompt registration, evaluation, optimization):
+Demo of MLflow capabilities - prompt registration, evaluation and optimization
 
 ### 1. Start MLflow Server
 
 ```bash
-mlflow server --backend-store-uri sqlite:///mlflow.db \
+mlflow server \
+  --backend-store-uri sqlite:///mlflow.db \
   --default-artifact-root ./mlruns \
   --host 127.0.0.1 --port 5000
 ```
-
 
 ### 2. Register a Prompt
 
@@ -87,7 +87,7 @@ python -m src.cli register-prompt
 ```
 
 
-### 3. Run Evaluation
+### 3. Evaluate Prompt
 
 ```bash
 python3 -m src.cli evaluate
@@ -100,7 +100,7 @@ Evaluate against a specific registered prompt version
 `python3 -m src.cli evaluate --prompt-uri prompts:/support-ticket-classifier-prompt/1`
 
 
-### 4. Make a Prediction (via CLI)
+### 4. Make Prediction (via CLI)
 
 Use the inline prompt from `src/prompt.py` (default — no MLflow server required):
 ```bash
@@ -137,9 +137,9 @@ python3 -m src.cli optimize --max-metric-calls 50
 ```
 ---
 
-## Run Gradio App Locally
+# Deploy Project as Gradio WebApp
 
-### Option A: Simple Interactive UI
+### Deploy on local host : Simple Interactive UI
 
 ```bash
 python3 app.py
@@ -149,13 +149,12 @@ Open `http://localhost:7860` in your browser.
 
 The app provides:
 - **Interactive classification** — Enter a message and run classification from the UI
-- **Provider selection** — Switch between Groq and OpenAI at runtime
-- **API key input** — Optionally paste API key (uses .env if empty)
+- **Provider selection** — Switch between  LLMs Groq and OpenAI at runtime
 - **Manual submission** — Use the Classify button to run predictions
 
 ---
 
-## Deployment to Hugging Face Spaces
+## Deploy & host on Hugging Face Spaces
 
 ### Setup
 
