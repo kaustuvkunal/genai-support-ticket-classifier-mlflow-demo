@@ -158,7 +158,7 @@ The app provides:
 
 ---
 
-### Deployed & host on Hugging Face Spaces[Here](https://huggingface.co/spaces/kaustuvkunal/genai-support-ticket-classifier)
+### Deployed & host on Hugging Face Spaces -[Here](https://huggingface.co/spaces/kaustuvkunal/genai-support-ticket-classifier)
 
 <img width="1361" height="747" alt="Screenshot 2026-03-18 at 6 18 25 PM" src="https://github.com/user-attachments/assets/2026d04d-4b48-4243-bf23-ea3f11b1a05e" />
 
