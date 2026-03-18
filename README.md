@@ -16,9 +16,8 @@ The system leverages the semantic understanding of LLMs to accurately classify c
 ---
 
 ## Key Features
-
-✅ **Flexible LLM Providers** — Switch between Groq or OpenAI at runtime   
-✅ **MLflow Demo** — Register prompts, run evaluations, optimize prompts leveraging MlFlow 
+✅ **Flexible LLM Providers** — Switch between Groq or OpenAI at runtime    
+✅ **MLflow Demo** — Register prompts, run evaluations, optimize prompts leveraging MlFlow  
 ✅ **CLI Tools** — Command line interface for batch predictions and prompt management  
 ✅ **Environment-based Config** — All settings via `.env` file for easy deployment  
 ✅ **No Backend Required** — Works standalone—no database or external server needed  
