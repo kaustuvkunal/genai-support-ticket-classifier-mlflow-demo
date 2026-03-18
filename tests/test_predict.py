@@ -6,10 +6,11 @@ from src.predict import predict_from_inputs
 
 
 def test_predict_from_inputs_calls_predict(monkeypatch):
-    called = {"args": None}
+    called = {"args": None, "kwargs": None}
 
-    def fake_predict(config, customer_message: str, prompt_uri=None) -> str:
+    def fake_predict(config, customer_message: str, **kwargs) -> str:
         called["args"] = (config, customer_message)
+        called["kwargs"] = kwargs
         return "incident"
 
     monkeypatch.setattr(predict_module, "predict", fake_predict)
@@ -21,6 +22,9 @@ def test_predict_from_inputs_calls_predict(monkeypatch):
 
     assert result == "incident"
     assert called["args"][1] == "hello"
+    assert called["kwargs"]["prompt_uri"] is None
+    assert called["kwargs"]["prompt_template"] is None
+    assert called["kwargs"]["client"] is None
 
 
 def test_predict_from_inputs_missing_message():
