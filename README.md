@@ -52,6 +52,7 @@ cp .env.example .env
 
 Edit `.env` and add your LLM provider key:
 
+Example :
 ```env
 LLM_PROVIDER=groq
 MODEL_NAME=llama-3.1-8b-instant
