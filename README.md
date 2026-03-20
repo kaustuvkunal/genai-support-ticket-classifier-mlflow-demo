@@ -17,7 +17,7 @@ The system leverages the semantic understanding of LLMs to accurately classify c
 ---
 
 ## Key Features
-- **MLflow Demo** — Register prompts, run evaluations, optimize prompts leveraging MlFlow  
+- **MLflow Demo** — Register prompts, run evaluations, optimize prompts leveraging MLFlow  
 - **CLI Tools** — Command line interface for batch predictions and prompt management  
 - **Environment-based Config** — All settings via `.env` file for easy deployment 
 - **Flexible LLM Providers** — Switch between LLMs at runtime    
